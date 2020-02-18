@@ -1,0 +1,13 @@
+sqlalchemy
+psycopg2
+Flask
+Flask-RESTful
+Flask-SQLAlchemy
+Flask-Migrate
+marshmallow
+flask_marshmallow
+marshmallow-sqlalchemy
+Flask-Bcrypt
+redis
+flask-cors
+flask_appbuilder
