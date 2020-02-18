@@ -2,7 +2,7 @@ from library import db, ma
 from .models import Author, Book
 from marshmallow import Schema, fields, ValidationError, pre_load
 
-#
+
 # class AuthorSchema(ma.ModelSchema):
 #     class Meta:
 #         model = Author
@@ -13,7 +13,7 @@ from marshmallow import Schema, fields, ValidationError, pre_load
 #
 #     class Meta:
 #         model = Book
-
+#
 
 
 #
@@ -31,7 +31,7 @@ from marshmallow import Schema, fields, ValidationError, pre_load
 #
 #     class Meta:
 #         fields = ("id", "title", "author")
-
+#
 
 
 class AuthorSchema(Schema):
@@ -42,6 +42,6 @@ class AuthorSchema(Schema):
 
 class BookSchema(Schema):
     id = fields.Int(dump_only=True)
-    title = fields.Str()
+    name = fields.Str()
     summary = fields.Str()
     author = fields.Nested(AuthorSchema(), many=True, only=("id", "name"))
