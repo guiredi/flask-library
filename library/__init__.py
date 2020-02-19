@@ -25,9 +25,9 @@ app.register_blueprint(views)
 db.create_all()
 
 
-# @app.route('/')
-# def home():
-#     return """
-#     <p>Author: <a href="http://0.0.0.0:8000/v1/author/">http://0.0.0.0:8000/v1/author/</a></p>
-#     <p>Book: <a href="http://0.0.0.0:8000/v1/book/">http://0.0.0.0:8000/v1/book/</a></p>
-#     """
+@app.route('/')
+def home():
+    return """
+    <p>Author: <a href="http://0.0.0.0:8000/v1/author/">http://0.0.0.0:8000/v1/author/</a></p>
+    <p>Book: <a href="http://0.0.0.0:8000/v1/book/">http://0.0.0.0:8000/v1/book/</a></p>
+    """

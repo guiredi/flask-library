@@ -4,6 +4,7 @@ from .models import Author, Book
 from .serializer import AuthorSchema, BookSchema
 from sqlalchemy.orm import joinedload
 from sqlalchemy.exc import IntegrityError
+from marshmallow_select import SchemaFilter
 
 author_schema = AuthorSchema()
 authors_schema = AuthorSchema(many=True)
@@ -11,35 +12,6 @@ book_schema = BookSchema()
 books_schema = BookSchema(many=True)
 
 views = Blueprint('view_page',__name__)
-
-@app.route("/book")
-def get_book_test():
-    db.drop_all()
-    db.create_all()
-    author = Author(name='Chuck Paluhniuk')
-    author_2 = Author(name="Chuck Norris")
-    book = Book(name='Fight Club', summary='summary')
-    book.author.append(author)
-    book.author.append(author_2)
-    db.session.add(author)
-    db.session.add(book)
-    db.session.commit()
-    return book_schema.dump(book)
-
-@app.route("/author")
-def get_author_test():
-    # db.drop_all()
-    # db.create_all()
-    author = Author(name='Calango')
-    author_2 = Author(name="Joy lele")
-    book = Book(name='Salve', summary='summaro')
-    book.author.append(author)
-    # book.author.append(author_2)
-    db.session.add(author)
-    db.session.add(author)
-    db.session.add(book)
-    db.session.commit()
-    return author_schema.dump(author)
 
 
 @app.route("/v1/author/", methods=["GET", "POST"])
@@ -81,6 +53,18 @@ def get_author(pk):
         db.session.commit()
         return jsonify({"message" : "Author deleted", "author": author_schema.dump(author)})
 
+@app.route("/v1/author/<int:pk>/book/", methods=["GET"])
+def get_author_book(pk):
+    try:
+        author = Author.query.get(pk)
+    except IntegrityError:
+        return jsonify({"message" : "Author could not be found."}), 400
+    if request.method == "GET":
+        query = Book.query.filter(Book.author.any(name=author.name))
+        results = books_schema.dump(query)
+        return jsonify(results)
+
+
 
 @app.route("/v1/book/", methods=["GET", "POST"])
 def get_books():
@@ -91,7 +75,7 @@ def get_books():
             return {"message" : "Authors could not be found"}
         result = books_schema.dump(books)
         return {"results" : result}
-    if request.method == "POST":
+    elif request.method == "POST":
         name = request.json['name']
         summary = request.json['summary']
         authors = request.json['author']
@@ -120,10 +104,27 @@ def get_book(pk):
         book.name = name
         book.summary = summary
         # NEED FIX
-        book.author = authors
+        book.author.clear()
+
+        for author in authors:
+            author_insert = Author.query.filter_by(name=author).first()
+            book.author.append(author_insert)
+
         db.session.commit()
         return jsonify({"message" : "Book Update", "book": book_schema.dump(book)})
     elif request.method == "DELETE":
         db.session.delete(book)
         db.session.commit()
         return jsonify({"message" : "Author deleted", "author": book_schema.dump(book)})
+
+
+@app.route("/v1/book/<int:pk>/author/", methods=["GET"])
+def get_book_author(pk):
+    try:
+        book = Book.query.get(pk)
+    except IntegrityError:
+        return jsonify({"message" : "Author could not be found."}), 400
+    if request.method == "GET":
+        query = book.author
+        results = books_schema.dump(query)
+        return jsonify(results)

@@ -11,3 +11,4 @@ Flask-Bcrypt
 redis
 flask-cors
 flask_appbuilder
+marshmallow-select
