@@ -103,7 +103,6 @@ def get_book(pk):
 
         book.name = name
         book.summary = summary
-        # NEED FIX
         book.author.clear()
 
         for author in authors:
