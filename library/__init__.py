@@ -13,7 +13,8 @@ app = Flask(__name__)
 # api = Api(app)
 app.secret_key = "super secret key"
 CORS(app)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgres://USER:PASSWORD@db:5432/LIB'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgres://postgres:546213gui@db-postgres.cihl3x37ztgu.us-east-2.rds.amazonaws.com:5432/RDS'
+# app.config['SQLALCHEMY_DATABASE_URI'] = 'postgres://USER:PASSWORD@db:5432/LIB'
 
 
 db = SQLAlchemy(app)

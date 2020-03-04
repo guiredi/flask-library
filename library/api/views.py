@@ -5,6 +5,7 @@ from .serializer import AuthorSchema, BookSchema
 from sqlalchemy.orm import joinedload
 from sqlalchemy.exc import IntegrityError
 from marshmallow_select import SchemaFilter
+from functools import lru_cache
 
 author_schema = AuthorSchema()
 authors_schema = AuthorSchema(many=True)
@@ -15,14 +16,11 @@ views = Blueprint('view_page',__name__)
 
 
 @app.route("/v1/author/", methods=["GET", "POST"])
+
 def get_authors_test():
     if request.method == "GET":
-        try:
-            authors = Author.query.all()
-        except IntegrityError:
-            return {"message" : "Authors could not be found"}
-        result = authors_schema.dump(authors)
-        return {"results": result}
+        return cached_get()
+
     elif request.method == "POST":
         json_data =  request.json['name']
         if not json_data:
@@ -31,6 +29,16 @@ def get_authors_test():
         db.session.add(new_author)
         db.session.commit()
         return jsonify({"message": "Created new author.", "author": author_schema.dump(new_author)})
+
+@lru_cache(maxsize=256)
+def cached_get():
+    try:
+        # authors = Author.query.all()
+        authors = Author.query.order_by(Author.name).all()
+    except IntegrityError:
+        return {"message" : "Authors could not be found"}
+    result = authors_schema.dump(authors)
+    return {"results": result}
 
 @app.route("/v1/author/<int:pk>/", methods=["GET", "PUT", "DELETE"])
 def get_author(pk):
@@ -70,7 +78,8 @@ def get_author_book(pk):
 def get_books():
     if request.method == "GET":
         try:
-            books = Book.query.all()
+            # books = Book.query.all()
+            books = Book.query.order_by(Book.name).all()
         except IntegrityError:
             return {"message" : "Authors could not be found"}
         result = books_schema.dump(books)
